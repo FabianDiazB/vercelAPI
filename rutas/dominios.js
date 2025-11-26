@@ -114,6 +114,34 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.put('/:id', async (req, res) => {
+  try {
+    const { servidor_origen } = req.body;
+    
+    const docRef = bd.collection('dominios').doc(req.params.id);
+    const doc = await docRef.get();
+    
+    if (!doc.exists) {
+      return res.status(404).json({ exito: false, error: 'Dominio no encontrado' });
+    }
+    
+    if (doc.data().propietario_id !== req.usuario.id) {
+      return res.status(403).json({ exito: false, error: 'No autorizado' });
+    }
+    
+    const actualizacion = {
+      servidor_origen: servidor_origen || doc.data().servidor_origen,
+      actualizado_en: new Date().toISOString()
+    };
+    
+    await docRef.update(actualizacion);
+    
+    res.json({ exito: true, dominio: { id: req.params.id, ...doc.data(), ...actualizacion } });
+  } catch (error) {
+    res.status(500).json({ exito: false, error: error.message });
+  }
+});
+
 router.delete('/:id', async (req, res) => {
   try {
     const docRef = bd.collection('dominios').doc(req.params.id);
@@ -249,6 +277,14 @@ router.put('/:dominio/urls/:urlId', async (req, res) => {
       return res.status(404).json({ exito: false, error: 'Dominio no encontrado' });
     }
     
+    // Validar que la URL existe
+    const urlRef = docRef.collection('urls').doc(req.params.urlId);
+    const urlDoc = await urlRef.get();
+    
+    if (!urlDoc.exists) {
+      return res.status(404).json({ exito: false, error: 'URL no encontrada' });
+    }
+    
     // Validación de propietario comentada para testing
     // if (doc.data().propietario_id !== req.usuario.id) {
     //   return res.status(403).json({ exito: false, error: 'No autorizado' });
@@ -262,7 +298,7 @@ router.put('/:dominio/urls/:urlId', async (req, res) => {
       actualizado_en: new Date().toISOString()
     };
     
-    await docRef.collection('urls').doc(req.params.urlId).update(urlActualizada);
+    await urlRef.update(urlActualizada);
     
     res.json({ exito: true, url: { id: req.params.urlId, ...urlActualizada } });
   } catch (error) {

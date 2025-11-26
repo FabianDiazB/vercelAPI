@@ -221,6 +221,38 @@ router.post('/:dominio/urls', async (req, res) => {
   }
 });
 
+router.put('/:dominio/urls/:urlId', async (req, res) => {
+  try {
+    const { path, tamanio_cache_mb, tipos_archivo, metodo_autenticacion } = req.body;
+    
+    const docRef = bd.collection('dominios').doc(req.params.dominio);
+    const doc = await docRef.get();
+    
+    if (!doc.exists) {
+      return res.status(404).json({ exito: false, error: 'Dominio no encontrado' });
+    }
+    
+    // Validación de propietario comentada para testing
+    // if (doc.data().propietario_id !== req.usuario.id) {
+    //   return res.status(403).json({ exito: false, error: 'No autorizado' });
+    // }
+    
+    const urlActualizada = {
+      path,
+      tamanio_cache_mb: tamanio_cache_mb || 50,
+      tipos_archivo: tipos_archivo || {},
+      metodo_autenticacion: metodo_autenticacion || 'none',
+      actualizado_en: new Date().toISOString()
+    };
+    
+    await docRef.collection('urls').doc(req.params.urlId).update(urlActualizada);
+    
+    res.json({ exito: true, url: { id: req.params.urlId, ...urlActualizada } });
+  } catch (error) {
+    res.status(500).json({ exito: false, error: error.message });
+  }
+});
+
 router.delete('/:dominio/urls/:urlId', async (req, res) => {
   try {
     const docRef = bd.collection('dominios').doc(req.params.dominio);

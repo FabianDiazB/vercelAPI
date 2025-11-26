@@ -13,6 +13,20 @@ const puerto = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Ruta raíz
+app.get('/', (req, res) => {
+  res.json({ 
+    mensaje: 'API REST de CDN - Sistema de Gestión de Dominios',
+    version: '1.0',
+    endpoints: {
+      salud: '/api/salud',
+      autenticacion: '/api/auth/*',
+      dominios: '/api/dominios/*',
+      obtenerPais: '/api/obtener-pais?ip=x.x.x.x'
+    }
+  });
+});
+
 app.use('/api/auth', authRouter);
 app.use('/api/dominios', dominiosRouter);
 

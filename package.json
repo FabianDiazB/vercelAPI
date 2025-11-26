@@ -1,0 +1,23 @@
+{
+  "name": "cdn-cache-api",
+  "version": "1.0.0",
+  "description": "API Node.js para gestion de cache zonal distribuida",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch index.js",
+    "start": "node index.js"
+  },
+  "keywords": ["cdn", "cache", "api"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "firebase-admin": "^12.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "dns": "^0.2.2"
+  }
+}

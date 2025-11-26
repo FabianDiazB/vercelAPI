@@ -127,9 +127,26 @@ router.delete('/:id', async (req, res) => {
       return res.status(403).json({ exito: false, error: 'No autorizado' });
     }
     
+    // Eliminar todas las URLs del dominio
+    const urlsSnapshot = await docRef.collection('urls').get();
+    const urlsBatch = bd.batch();
+    urlsSnapshot.docs.forEach(doc => {
+      urlsBatch.delete(doc.ref);
+    });
+    await urlsBatch.commit();
+    
+    // Eliminar todas las API Keys del dominio
+    const keysSnapshot = await docRef.collection('api-keys').get();
+    const keysBatch = bd.batch();
+    keysSnapshot.docs.forEach(doc => {
+      keysBatch.delete(doc.ref);
+    });
+    await keysBatch.commit();
+    
+    // Eliminar el dominio
     await docRef.delete();
     
-    res.json({ exito: true, mensaje: 'Dominio eliminado' });
+    res.json({ exito: true, mensaje: 'Dominio y todas sus configuraciones eliminados' });
   } catch (error) {
     res.status(500).json({ exito: false, error: error.message });
   }
